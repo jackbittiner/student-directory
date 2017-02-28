@@ -4,11 +4,19 @@ def input_students
   puts "Please enter the names of the students"
   puts "To finish, just hit return twice"
   name = gets.chomp
-  while !name.empty? do
-    @students << {name: name, cohort: :november}
+  puts "And which cohort are they on?"
+  cohort = gets.chomp
+  cohort.empty? ? cohort = :november : cohort = cohort.to_sym
+  while !name.empty? && !cohort.empty? do
+    @students << {name: name, cohort: cohort}
     puts "Now we have #{@students.count} students"
+    puts "Next student's name:"
     name = gets.chomp
+    puts "and their cohort?"
+    cohort = gets.chomp
+    cohort.empty? ? cohort = :november : cohort = cohort.to_sym
   end
+  @students
 end
 
 def interactive_menu
@@ -22,6 +30,7 @@ def print_menu
   puts "1. Input the students"
   puts "2. Show the students"
   puts "3. Save the list to students.csv"
+  puts "4. Load the list from students.csv"
   puts "9. Exit"
 end
 
@@ -39,6 +48,8 @@ def process(selection)
     show_students
   when "3"
     save_students
+  when "4"
+    load_students
   when "9"
     exit # this will cause the program to terminate
   else
@@ -59,6 +70,25 @@ end
 
 def print_footer
   puts "Overall, we have #{@students.count} great students"
+end
+
+def save_students
+  file = File.open("students.csv", "w")
+  @students.each do |student|
+    student_data = [student[:name], student[:cohort]]
+    csv_line = student_data.join(",")
+    file.puts csv_line
+  end
+  file.close
+end
+
+def load_students
+  file = File.open("students.csv", "r")
+  file.readlines.each do |line|
+  name, cohort = line.chomp.split(',')
+    @students << {name: name, cohort: cohort.to_sym}
+  end
+  file.close
 end
 
 interactive_menu
